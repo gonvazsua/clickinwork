@@ -1,0 +1,116 @@
+<div class="row">
+  <div class="col-lg-6">
+    <h1 class="page-header">
+      Gestión de tiempos
+    </h1>
+  </div>
+  <div class="col-lg-6 text-right pt-3">
+    <small class="today">Jornada del {{hoy | date:'dd/MM/yyyy'}}</small>
+  </div>
+</div>
+<div class="row mt-5">
+  <div class="col-md-3 col-sm-12 col-xs-12">
+    <app-fichaje-evento eventType="START" isDisabled="{{isStarted || isStopped}}" text="Comenzar" icon="fa-clock" colorClass="text-success" (clickEvent)="handleClick($event)"></app-fichaje-evento>
+  </div>
+  <div class="col-md-3 col-sm-12 col-xs-12">
+    <app-fichaje-evento eventType="PAUSE" isDisabled="{{!isStarted || isPaused || isStopped}}" text="Pausar" icon="fa-pause-circle" colorClass="text-warning" (clickEvent)="handleClick($event)"></app-fichaje-evento>
+  </div>
+  <div class="col-md-3 col-sm-12 col-xs-12">
+    <app-fichaje-evento eventType="CONTINUE" isDisabled="{{!isStarted || isResumed || isStopped}}" text="Reanudar" icon="fa-play-circle" colorClass="text-info" (clickEvent)="handleClick($event)"></app-fichaje-evento>
+  </div>
+  <div class="col-md-3 col-sm-12 col-xs-12">
+    <app-fichaje-evento eventType="STOP" isDisabled="{{!isStarted || isStopped}}" text="Terminar" icon="fa-stop-circle" colorClass="text-danger" (clickEvent)="handleClick($event)"></app-fichaje-evento>
+  </div>
+</div>
+
+<div class="row">
+  <!-- FICHAJE ACTUAL -->
+  <div class="col-sm-6 col-xs-12">
+    <div class="board">
+      <div class="panel panel-primary">
+        <div class="row">
+          <div class="col-lg-10">
+            <div class="panel-title">FICHAJE ACTUAL</div>
+          </div>
+          <div class="col-lg-2 text-center" *ngIf="fichajesState.cargando">
+            <i class="fas fa-spinner fa-pulse loading"></i>
+          </div>
+        </div>
+        <div class="row" *ngIf="startEvent">
+          <div class="col-lg-12">
+            <div class="row">
+              <div class="col-lg-6">Hora de comienzo</div>
+              <div class="col-lg-6"><span class="badge badge-success">{{startEvent?.time | date: 'HH:mm'}} h.</span></div>
+            </div>
+
+            <div class="row" *ngFor="let event of eventosIntermedios">
+              <div class="col-lg-6" *ngIf="event.type === 'PAUSE'">Hora de pausa</div>
+              <div class="col-lg-6" *ngIf="event.type === 'CONTINUE'">Continuaste a las</div>
+              <div class="col-lg-6"><span class="badge badge-secondary">{{event.time | date: 'HH:mm'}}  h.</span></div>
+            </div>
+
+            <div class="row">
+              <div class="col-lg-6">Hora de fin</div>
+              <div class="col-lg-6"><span class="badge badge-danger">{{stopEvent?.time | date: 'HH:mm'}}  h.</span></div>
+            </div>
+
+            <div class="row">
+              <div class="col-lg-12"><hr></div>
+            </div>
+
+            <div class="row">
+              <div class="col-lg-6">Total trabajado</div>
+              <div class="col-lg-6"><span class="badge badge-danger">02:15  h.</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="row" *ngIf="!startEvent">
+          <div class="col-lg-12">
+            Todavía no has empezado tu jornada. <br>Haz clic en comenzar.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- ULTIMOS FICHAJES -->
+  <div class="col-sm-6 col-xs-12">
+    <div class="board">
+      <div class="panel panel-primary">
+        <div class="row">
+          <div class="col-lg-10">
+            <div class="panel-title">ULTIMOS FICHAJES</div>
+          </div>
+          <div class="col-lg-2 text-center" *ngIf="fichajesState.cargando">
+            <i class="fas fa-spinner fa-pulse loading"></i>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-lg-12">
+              <table class="table">
+                <thead>
+                  <tr class="text-center">
+                    <th scope="col">Fecha</th>
+                    <th scope="col">Comienzo</th>
+                    <th scope="col">Fin</th>
+                    <th scope="col">Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngIf="!(fichajesState.ultimosFichajes$ | async) || (fichajesState.ultimosFichajes$ | async)?.length === 0">
+                    <td colspan="4">Todavía no hay registros de fichajes</td>
+                  </tr>
+                  <tr *ngFor="let fichaje of (fichajesState.ultimosFichajes$ | async)" class="text-center">
+                    <td>{{fichaje.creation_date | date: 'dd/MM/yyyy'}}</td>
+                    <td>{{fichaje.from.time | date: 'hh:mm'}}</td>
+                    <td>{{fichaje.to.time | date: 'hh:mm'}}</td>
+                    <td>{{fichaje.total | date: 'HH:mm'}}</td>
+                  </tr>
+                </tbody>
+              </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

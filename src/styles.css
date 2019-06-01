@@ -1,1 +1,69 @@
-/* You can add global styles to this file, and also import other style files */
+body {
+    background-color: #EDEDED !important;
+    font-family: 'Open Sans', sans-serif !important;
+}
+
+h1 {
+    font-size: 36px !important;
+}
+
+.page-header {
+    color: #323232;
+}
+
+.clicable {
+    cursor: pointer;
+    transition: opacity 0,5s;
+}
+
+.clicable:hover {
+    opacity: 0.6;
+}
+
+.board .panel {
+    padding: 25px 15px;
+    border: none;
+    background: #fff;
+}
+
+.panel-primary {
+    display: inline-block;
+    margin-bottom: 30px;
+    width: 100%;
+}
+
+.panel {
+    border-radius: 0px;
+    box-shadow: 0 1px 1px rgba(0,0,0,.05);
+}
+
+.panel h3 {
+    font-size: 25px;
+    color: #363636;
+    font-family: inherit;
+    font-weight: 500;
+    line-height: 1.1;
+}
+
+.panel small {
+    font-size: 14px;
+    color: rgb(117, 119, 121);
+    font-weight: 600;
+    margin: 8px 5px;
+    display: inline-block;
+}
+
+.panel i {
+    font-size: 40px;
+}
+
+.panel .panel-title {
+    color: #555;
+    border-color: #FFF;
+    font-weight: bold !important;
+    background: #FFFFFF;
+    font-size: 16px;
+    text-shadow: none;
+    line-height: 1.42857143;
+    margin-bottom: 1.5rem;
+}

@@ -1,0 +1,38 @@
+<div class="d-flex flex-row justify-content-center">
+  <img src="assets/img/Logo-Medios-Acuaticos.png" class="img-fluid mt-5 pt-5 logo">
+</div>
+<div class="container">
+  <div class="row">
+    <div class="col-md-4"></div>
+    <div class="col-md-4 mt-5">
+      <form [formGroup]="loginForm" (ngSubmit)="checkLogin()">
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="text" formControlName="email" class="form-control" placeholder="ejemplo@miemail.com">
+          <small *ngIf="loginForm.get('email').touched && !loginForm.get('email').valid" class="form-text text-danger" [@slideInOut]>Introduce un email válido</small>
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" formControlName="password" class="form-control">
+          <small *ngIf="loginForm.get('password').touched && !loginForm.get('password').valid" class="form-text text-danger" [@slideInOut]>Campo obligatorio</small>
+        </div>
+        <div class="form-group text-center">
+          <a routerLink="/recuperar-password" class="text-sgb">Recuperar contraseña</a>
+        </div>
+        <div class="row">
+          <div class="col-lg-12 text-center">
+            <button type="submit" class="btn btn-secondary btn-loading" [disabled]="cargando">
+              <i *ngIf="cargando" class="fas fa-circle-notch fa-spin"></i>
+              <span *ngIf="!cargando">Acceder</span>
+            </button>
+          </div>
+        </div>
+        <div class="row" *ngIf="incorrectLogin" [@slideInOut] >
+          <div class="col-lg-12 text-center">
+            <small class="text-danger">Login incorrecto</small>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

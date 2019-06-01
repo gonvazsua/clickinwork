@@ -1,0 +1,15 @@
+<div class="board">
+  <div class="panel panel-primary" (click)="dispatchClick()" 
+    [ngClass]="{'clicable': !_isDisabled, 'disabled': _isDisabled}">
+    <div class="row">
+      <div class="col-lg-8">
+        <div class="row">
+          <div class="col-lg-12 text-center mt-1"><h3>{{text}}</h3></div>
+        </div>
+      </div>
+      <div class="col-lg-4 my-auto">
+        <i class="fas {{icon}} {{colorClass}}"></i>
+      </div>
+    </div>
+  </div>
+</div>
