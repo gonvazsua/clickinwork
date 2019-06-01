@@ -40,18 +40,18 @@
           <div class="col-lg-12">
             <div class="row">
               <div class="col-lg-6">Hora de comienzo</div>
-              <div class="col-lg-6"><span class="badge badge-success">{{startEvent?.time | date: 'HH:mm'}} h.</span></div>
+              <div class="col-lg-6"><span class="badge badge-success">{{startEvent?.time | customDatepipe: 'time'}} h.</span></div>
             </div>
 
             <div class="row" *ngFor="let event of eventosIntermedios">
               <div class="col-lg-6" *ngIf="event.type === 'PAUSE'">Hora de pausa</div>
               <div class="col-lg-6" *ngIf="event.type === 'CONTINUE'">Continuaste a las</div>
-              <div class="col-lg-6"><span class="badge badge-secondary">{{event.time | date: 'HH:mm'}}  h.</span></div>
+              <div class="col-lg-6"><span class="badge badge-secondary">{{event.time | customDatepipe: 'time'}}  h.</span></div>
             </div>
 
             <div class="row">
               <div class="col-lg-6">Hora de fin</div>
-              <div class="col-lg-6"><span class="badge badge-danger">{{stopEvent?.time | date: 'HH:mm'}}  h.</span></div>
+              <div class="col-lg-6"><span class="badge badge-danger">{{stopEvent?.time | customDatepipe: 'time'}}  h.</span></div>
             </div>
 
             <div class="row">
@@ -101,9 +101,9 @@
                     <td colspan="4">Todavía no hay registros de fichajes</td>
                   </tr>
                   <tr *ngFor="let fichaje of (fichajesState.ultimosFichajes$ | async)" class="text-center">
-                    <td>{{fichaje.creation_date | date: 'dd/MM/yyyy'}}</td>
-                    <td>{{fichaje.from.time | date: 'hh:mm'}}</td>
-                    <td>{{fichaje.to.time | date: 'hh:mm'}}</td>
+                    <td>{{fichaje.creation_date | customDatepipe: 'date'}}</td>
+                    <td>{{fichaje.from.time | customDatepipe: 'time'}}</td>
+                    <td>{{fichaje.to.time | customDatepipe: 'time'}}</td>
                     <td>{{fichaje.total | date: 'HH:mm'}}</td>
                   </tr>
                 </tbody>
