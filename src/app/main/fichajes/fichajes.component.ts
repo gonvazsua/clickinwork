@@ -1,10 +1,13 @@
 import { Component, OnInit } from '@angular/core';
-import { FichajesService } from './fichajes.service';
+import { FichajesService } from './fichaje-service/fichajes.service';
 import { Observable } from 'rxjs';
-import { Fichaje } from './fichaje.model';
+import { Fichaje } from './modelos/fichaje.model';
 import { FichajesStateService } from './fichajes-state.service';
-import { TipoEvento } from './tipo-evento.enum';
-import { Evento } from './evento.model';
+import { TipoEvento } from './modelos/tipo-evento.enum';
+import { Evento } from './modelos/evento.model';
+import { FichajeTotales } from './modelos/fichaje-totales.model';
+import { FichajesActionService } from './fichajes-action.service';
+import { EstadoJornada } from './modelos/estado-jornada.enum';
 
 @Component({
   selector: 'app-fichajes',
@@ -14,17 +17,10 @@ import { Evento } from './evento.model';
 export class FichajesComponent implements OnInit {
 
   private hoy            : number;
-  private isStarted      : boolean;
-  private isPaused       : boolean;
-  private isResumed      : boolean;
-  private isStopped      : boolean;
-  private startEvent     : Evento;
-  private stopEvent      : Evento;
-  private eventosIntermedios : Array<Evento>;
 
-  constructor(private fichajesService: FichajesService, private fichajesState : FichajesStateService) { 
+  constructor(private fichajesService: FichajesService, 
+    private fichajesState : FichajesStateService, private fichajesAction: FichajesActionService) { 
     this.hoy = Date.now();
-    this.eventosIntermedios = new Array();
   }
 
   ngOnInit() {
@@ -34,63 +30,52 @@ export class FichajesComponent implements OnInit {
   initData() {
     this.fichajesService.cargarFichajeActual()
       .subscribe(fichaje => {
-        this.fichajesState.actualizarFichajeActual(fichaje);
+        this.fichajesAction.setFichajeActual(fichaje);
+        this.actualizarEstadosPantalla(fichaje);
       });
-    this.updateFlags();
-    this.obtenerEventos();
     this.obtenerUltimosFichajes();
-  }
-
-  updateFlags() {
-    this.fichajesState.fichajeActual$.subscribe(fc => {
-      console.log(fc);
-      this.isStarted = fc.isStarted() && !fc.isStopped();
-      this.isPaused = fc.isPaused() && !fc.isStopped();
-      this.isResumed = fc.isResumed() && !fc.isStopped();
-      this.isStopped = fc.isStopped();
-    })    
   }
   
   empezarJornada(){
-    this.fichajesState.setCargando(true);
+    this.fichajesAction.setCargando(true);
     setTimeout(() => {
       this.fichajesService.empezarJornada()
       .subscribe((fichaje : Fichaje) => {
-        this.fichajesState.actualizarFichajeActual(fichaje);
-        this.fichajesState.setCargando(false);
+        this.actualizarEstadosPantalla(fichaje);
+        this.fichajesAction.setCargando(false);
       });
     }, 1500);
   }
 
   hacerPausa() {
-    this.fichajesState.setCargando(true);
+    this.fichajesAction.setCargando(true);
     setTimeout(() => {
       this.fichajesService.hacerPausa()
       .subscribe((fichaje: Fichaje) => {
-        this.fichajesState.actualizarFichajeActual(fichaje);
-        this.fichajesState.setCargando(false);
+        this.actualizarEstadosPantalla(fichaje);
+        this.fichajesAction.setCargando(false);
       });
     }, 1500);
   }
 
   reanudarJornada() {
-    this.fichajesState.setCargando(true);
+    this.fichajesAction.setCargando(true);
     setTimeout(() => {
       this.fichajesService.continuarJornada()
       .subscribe((fichaje: Fichaje) => {
-        this.fichajesState.actualizarFichajeActual(fichaje);
-        this.fichajesState.setCargando(false);
+        this.actualizarEstadosPantalla(fichaje);
+        this.fichajesAction.setCargando(false);
       });
     }, 1500);
   }
 
   terminarJornada() {
-    this.fichajesState.setCargando(true);
+    this.fichajesAction.setCargando(true);
     setTimeout(() => {
       this.fichajesService.terminarJornada()
       .subscribe((fichaje: Fichaje) => {
-        this.fichajesState.actualizarFichajeActual(fichaje);
-        this.fichajesState.setCargando(false);
+        this.actualizarEstadosPantalla(fichaje);
+        this.fichajesAction.setCargando(false);
       });
     }, 1500);
   }
@@ -119,25 +104,33 @@ export class FichajesComponent implements OnInit {
     }
   }
 
-  obtenerEventos() {
-    this.fichajesState.fichajeActual$.subscribe(fc => {
-      this.startEvent = fc.time_events.find(e => e.type === TipoEvento.START);
-      this.stopEvent = fc.time_events.find(e => e.type === TipoEvento.STOP);
-      this.eventosIntermedios = fc.time_events
-        .filter(e => e.type === TipoEvento.CONTINUE || e.type === TipoEvento.PAUSE)
-        .sort((e1, e2) => { return +new Date(e1.time) - +new Date(e2.time) });
-    })
-  }
-
   obtenerUltimosFichajes() {
-    this.fichajesState.setCargando(true);
+    this.fichajesAction.setCargando(true);
     setTimeout(() => {
       this.fichajesService.cargarUltimosFichajes()
         .subscribe((ultimosFichajes: Array<any>) => {
-          this.fichajesState.actualizarUltimosFichajes(ultimosFichajes);
-          this.fichajesState.setCargando(false);
+          this.fichajesAction.setUltimosFichajes(ultimosFichajes);
+          this.fichajesAction.setCargando(false);
         });
     }, 1500);
+  }
+
+  actualizarFichajeTotales(fichaje: Fichaje) {
+    const fichajeTotales = this.fichajesService.enriquecerFichajesConTotales(fichaje);
+    console.log(fichajeTotales);
+    this.fichajesAction.setFichajeAConsultar(fichajeTotales);
+  }
+
+  actualizarEstadoJornada(fichaje: Fichaje) {
+    const estadoJornada: EstadoJornada = this.fichajesService.calcularEstadoJornada(fichaje);
+    console.log(estadoJornada);
+    this.fichajesAction.setEstadoJornada(estadoJornada);
+  }
+
+  actualizarEstadosPantalla(fichaje: Fichaje) {
+    this.fichajesAction.setFichajeActual(fichaje);
+    this.actualizarFichajeTotales(fichaje);
+    this.actualizarEstadoJornada(fichaje);
   }
 
 }

@@ -10,16 +10,16 @@
 </div>
 <div class="row mt-5">
   <div class="col-md-3 col-sm-12 col-xs-12">
-    <app-fichaje-evento eventType="START" isDisabled="{{isStarted || isStopped}}" text="Comenzar" icon="fa-clock" colorClass="text-success" (clickEvent)="handleClick($event)"></app-fichaje-evento>
+    <app-fichaje-evento eventType="START" isEnabled="{{(fichajesState.estadoJornada$ | async) === 'NO_EMPEZADA'}}" text="Comenzar" icon="fa-clock" colorClass="text-success" (clickEvent)="handleClick($event)"></app-fichaje-evento>
   </div>
   <div class="col-md-3 col-sm-12 col-xs-12">
-    <app-fichaje-evento eventType="PAUSE" isDisabled="{{!isStarted || isPaused || isStopped}}" text="Pausar" icon="fa-pause-circle" colorClass="text-warning" (clickEvent)="handleClick($event)"></app-fichaje-evento>
+    <app-fichaje-evento eventType="PAUSE" isEnabled="{{(fichajesState.estadoJornada$ | async) === 'EMPEZADA'}}" text="Pausar" icon="fa-pause-circle" colorClass="text-warning" (clickEvent)="handleClick($event)"></app-fichaje-evento>
   </div>
   <div class="col-md-3 col-sm-12 col-xs-12">
-    <app-fichaje-evento eventType="CONTINUE" isDisabled="{{!isStarted || isResumed || isStopped}}" text="Reanudar" icon="fa-play-circle" colorClass="text-info" (clickEvent)="handleClick($event)"></app-fichaje-evento>
+    <app-fichaje-evento eventType="CONTINUE" isEnabled="{{(fichajesState.estadoJornada$ | async) === 'PAUSADA'}}" text="Reanudar" icon="fa-play-circle" colorClass="text-info" (clickEvent)="handleClick($event)"></app-fichaje-evento>
   </div>
   <div class="col-md-3 col-sm-12 col-xs-12">
-    <app-fichaje-evento eventType="STOP" isDisabled="{{!isStarted || isStopped}}" text="Terminar" icon="fa-stop-circle" colorClass="text-danger" (clickEvent)="handleClick($event)"></app-fichaje-evento>
+    <app-fichaje-evento eventType="STOP" isEnabled="{{(fichajesState.estadoJornada$ | async) === 'EMPEZADA'}}" text="Terminar" icon="fa-stop-circle" colorClass="text-danger" (clickEvent)="handleClick($event)"></app-fichaje-evento>
   </div>
 </div>
 
@@ -32,18 +32,22 @@
           <div class="col-lg-10">
             <div class="panel-title">FICHAJE ACTUAL</div>
           </div>
-          <div class="col-lg-2 text-center" *ngIf="fichajesState.cargando">
+          <div class="col-lg-2 text-center" *ngIf="(fichajesState.cargando$ | async)">
             <i class="fas fa-spinner fa-pulse loading"></i>
           </div>
         </div>
-        <div class="row" *ngIf="startEvent">
+        <div class="row" *ngIf="fichajesState.fichajeAConsultar$ | async">
           <div class="col-lg-12">
             <div class="row">
               <div class="col-lg-6">Hora de comienzo</div>
-              <div class="col-lg-6"><span class="badge badge-success">{{startEvent?.time | customDatepipe: 'time'}} h.</span></div>
+              <div class="col-lg-6">
+                <span class="badge badge-success">
+                  {{(fichajesState.fichajeAConsultar$ | async)?.comienzo | customDatepipe: 'time'}} h.
+                </span>
+              </div>
             </div>
 
-            <div class="row" *ngFor="let event of eventosIntermedios">
+            <div class="row" *ngFor="let event of (fichajesState.fichajeAConsultar$ | async)?.eventosIntermedios">
               <div class="col-lg-6" *ngIf="event.type === 'PAUSE'">Hora de pausa</div>
               <div class="col-lg-6" *ngIf="event.type === 'CONTINUE'">Continuaste a las</div>
               <div class="col-lg-6"><span class="badge badge-secondary">{{event.time | customDatepipe: 'time'}}  h.</span></div>
@@ -51,7 +55,11 @@
 
             <div class="row">
               <div class="col-lg-6">Hora de fin</div>
-              <div class="col-lg-6"><span class="badge badge-danger">{{stopEvent?.time | customDatepipe: 'time'}}  h.</span></div>
+              <div class="col-lg-6">
+                <span class="badge badge-danger">
+                  {{(fichajesState.fichajeAConsultar$ | async)?.fin | customDatepipe: 'time'}} h.
+                </span>
+              </div>
             </div>
 
             <div class="row">
@@ -60,11 +68,11 @@
 
             <div class="row">
               <div class="col-lg-6">Total trabajado</div>
-              <div class="col-lg-6"><span class="badge badge-danger">02:15  h.</span></div>
+              <div class="col-lg-6"><span class="badge badge-danger">{{(fichajesState.fichajeAConsultar$ | async )?.total | customDatepipe: 'time'}}</span></div>
             </div>
           </div>
         </div>
-        <div class="row" *ngIf="!startEvent">
+        <div class="row" *ngIf="!(fichajesState.fichajeAConsultar$ | async)">
           <div class="col-lg-12">
             Todavía no has empezado tu jornada. <br>Haz clic en comenzar.
           </div>
@@ -81,7 +89,7 @@
           <div class="col-lg-10">
             <div class="panel-title">ULTIMOS FICHAJES</div>
           </div>
-          <div class="col-lg-2 text-center" *ngIf="fichajesState.cargando">
+          <div class="col-lg-2 text-center" *ngIf="(fichajesState.cargando$ | async)">
             <i class="fas fa-spinner fa-pulse loading"></i>
           </div>
         </div>
@@ -102,9 +110,9 @@
                   </tr>
                   <tr *ngFor="let fichaje of (fichajesState.ultimosFichajes$ | async)" class="text-center">
                     <td>{{fichaje.creation_date | customDatepipe: 'date'}}</td>
-                    <td>{{fichaje.from.time | customDatepipe: 'time'}}</td>
-                    <td>{{fichaje.to.time | customDatepipe: 'time'}}</td>
-                    <td>{{fichaje.total | date: 'HH:mm'}}</td>
+                    <td>{{fichaje.comienzo | customDatepipe: 'time'}}</td>
+                    <td>{{fichaje.fin | customDatepipe: 'time'}}</td>
+                    <td>{{fichaje.totalTrabajado | date: 'HH:mm'}}</td>
                   </tr>
                 </tbody>
               </table>

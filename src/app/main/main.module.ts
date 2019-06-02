@@ -5,7 +5,7 @@ import { FichajesComponent } from './fichajes/fichajes.component';
 import { MainRoutingModule } from './main-routing.module';
 import { SharedModule } from '../shared/shared.module';
 import { ErrorComponent } from './error/error.component';
-import { FichajesService } from './fichajes/fichajes.service';
+import { FichajesService } from './fichajes/fichaje-service/fichajes.service';
 import { FichajesStateService } from './fichajes/fichajes-state.service';
 import { FichajeEventoComponent } from './fichajes/fichaje-evento/fichaje-evento.component';
 

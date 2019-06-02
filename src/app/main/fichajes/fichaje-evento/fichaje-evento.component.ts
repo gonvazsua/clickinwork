@@ -12,15 +12,18 @@ export class FichajeEventoComponent implements OnInit {
   @Input() icon      : string;
   @Input() colorClass: string;
   @Input() eventType : string;
+  @Input() isEnabledWith : string;
 
   @Input() 
-  set isDisabled(value) {
-    this._isDisabled = value === 'true';
+  set isEnabled(value) {
+    console.log("EVENTO ", this.eventType);
+    console.log("Is enabled: ", value);
+    this._isEnabled = value === 'true';
   }
 
   @Output() clickEvent : EventEmitter<string>;
 
-  private _isDisabled : boolean;
+  private _isEnabled : boolean;
 
   constructor() { 
     this.clickEvent = new EventEmitter<string>();
@@ -30,7 +33,7 @@ export class FichajeEventoComponent implements OnInit {
   }
 
   dispatchClick() {
-    if(!this.isDisabled) {
+    if(this._isEnabled) {
       this.clickEvent.emit(this.eventType);
     }
   }

@@ -1,6 +1,6 @@
 <div class="board">
   <div class="panel panel-primary" (click)="dispatchClick()" 
-    [ngClass]="{'clicable': !_isDisabled, 'disabled': _isDisabled}">
+    [ngClass]="{'clicable': _isEnabled, 'disabled': !_isEnabled}">
     <div class="row">
       <div class="col-lg-8">
         <div class="row">
