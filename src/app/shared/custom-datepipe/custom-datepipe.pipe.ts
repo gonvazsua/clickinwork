@@ -8,7 +8,6 @@ export class CustomDatepipePipe implements PipeTransform {
   transform(dateToTransform: string, format: string): any {
 
     const date = new Date(dateToTransform);
-    console.log(dateToTransform);
     if(format === 'date') {
       const years = String(date.getUTCFullYear());
       const months = String(date.getUTCMonth()+1);
