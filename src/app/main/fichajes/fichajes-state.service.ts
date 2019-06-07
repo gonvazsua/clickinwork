@@ -9,55 +9,59 @@ import { FichajeTotales } from './modelos/fichaje-totales.model';
 })
 export class FichajesStateService {
 
-  _fichajeActual : BehaviorSubject<Fichaje>;
-  fichajeActual$ : Observable<Fichaje>;
-  fichajeActual : Fichaje;
+  private readonly _fichajeActual = new BehaviorSubject<Fichaje>(null);
+  readonly fichajeActual$ : Observable<Fichaje> = this._fichajeActual.asObservable();
 
-  _fichajeAConsultar : BehaviorSubject<Fichaje>;
-  fichajeAConsultar$ : Observable<Fichaje>;
-  fichajeAConsultar : Fichaje;
+  private readonly _fichajeAConsultar = new BehaviorSubject<Fichaje>(null);
+  readonly fichajeAConsultar$ : Observable<Fichaje> = this._fichajeAConsultar.asObservable();
 
-  _cargando : BehaviorSubject<boolean>;
-  cargando : boolean;
-  cargando$ : Observable<boolean>;
+  private readonly _cargando = new BehaviorSubject<boolean>(false);
+  readonly cargando$ : Observable<boolean> = this._cargando.asObservable();
 
-  _ultimosFichajes : BehaviorSubject<Array<FichajeTotales>>;
-  ultimosFichajes : Array<FichajeTotales>;
-  ultimosFichajes$ : Observable<Array<FichajeTotales>>;
+  private readonly _ultimosFichajes = new BehaviorSubject<Array<FichajeTotales>>([]);
+  readonly ultimosFichajes$ : Observable<Array<FichajeTotales>> = this._ultimosFichajes.asObservable();
 
-  _estadoJornada : BehaviorSubject<EstadoJornada>;
-  estadoJornada: EstadoJornada;
-  estadoJornada$ : Observable<EstadoJornada>;
+  private readonly _estadoJornada = new BehaviorSubject<EstadoJornada>(null);
+  readonly estadoJornada$ : Observable<EstadoJornada> = this._estadoJornada.asObservable();
 
-
-  constructor() {
-    this.initModels();
-    this.initSubjects();
-    this.initObservables();
+  get fichajeActual(): Fichaje {
+    return this._fichajeActual.getValue();
   }
 
-  initSubjects() {
-    this._fichajeActual = new BehaviorSubject(this.fichajeActual);
-    this._fichajeAConsultar = new BehaviorSubject(this.fichajeAConsultar);
-    this._cargando = new BehaviorSubject(this.cargando);
-    this._ultimosFichajes = new BehaviorSubject(this.ultimosFichajes);
-    this._estadoJornada = new BehaviorSubject(this.estadoJornada);
+  set fichajeActual(fichaje: Fichaje) {
+    this._fichajeActual.next(fichaje);
   }
 
-  initModels() {
-    this.fichajeActual = new Fichaje();
-    this.fichajeAConsultar = new Fichaje();
-    this.cargando = false;
-    this.ultimosFichajes = new Array<FichajeTotales>();
-    this.estadoJornada = null;
+  get fichajeAConsultar(): Fichaje {
+    return this._fichajeAConsultar.getValue();
   }
 
-  initObservables() {
-    this.fichajeActual$ = this._fichajeActual.asObservable();
-    this.fichajeAConsultar$ = this._fichajeActual.asObservable();
-    this.cargando$ = this._cargando.asObservable();
-    this.ultimosFichajes$ = this._ultimosFichajes.asObservable();
-    this.estadoJornada$ = this._estadoJornada.asObservable();
+  set fichajeAConsultar(fichaje: Fichaje) {
+    this._fichajeAConsultar.next(fichaje);
+  }
+
+  get cargando(): boolean {
+    return this._cargando.getValue();
+  }
+
+  set cargando(cargando: boolean) {
+    this._cargando.next(cargando);
+  }
+
+  get ultimosFichajes(): Array<FichajeTotales> {
+    return this._ultimosFichajes.getValue();
+  }
+
+  set ultimosFichajes(fichajes: Array<FichajeTotales>) {
+    this._ultimosFichajes.next(fichajes);
+  }
+
+  get estadoJornada(): EstadoJornada {
+    return this._estadoJornada.getValue();
+  }
+
+  set estadoJornada(estado: EstadoJornada) {
+    this._estadoJornada.next(estado);
   }
 
 }

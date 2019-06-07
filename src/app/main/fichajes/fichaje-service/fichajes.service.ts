@@ -26,7 +26,6 @@ export class FichajesService {
   private URL_LAST_TC  : string = this.URL_FICHAJES + '/last';
 
   constructor(private http: HttpClient, 
-    private fichajesState: FichajesStateService, 
     private dateFactory: DateFactoryService) { }
 
   cargarFichajeActual(): Observable<Fichaje> {
@@ -53,8 +52,7 @@ export class FichajesService {
     return this.http.get<Array<any>>(this.URL_LAST_TC)
       .pipe(
         map(fichajes => {
-          fichajes.map(f => this.enriquecerFichajesConTotales(f));
-          return fichajes;
+          return fichajes.map(f => this.enriquecerFichajesConTotales(f));
         })
       );
   }
@@ -63,16 +61,17 @@ export class FichajesService {
   enriquecerFichajesConTotales(fichaje: Fichaje) : FichajeTotales {
     const fichajeTotales = new FichajeTotales(fichaje);
     const eventoStart = fichaje.time_events.find(e => e.type === TipoEvento.START);
-    fichajeTotales.comienzo = eventoStart ? eventoStart.time : null;
+    fichajeTotales.comienzo = eventoStart ? new Date(eventoStart.time) : null;
     
     const eventoStop = fichaje.time_events.find(e => e.type === TipoEvento.STOP);
-    fichajeTotales.fin = eventoStop ? eventoStop.time : new Date();
+    fichajeTotales.fin = eventoStop ? new Date(eventoStop.time) : new Date();
 
     const total = this.dateFactory.getDiffInHours(fichajeTotales.fin, fichajeTotales.comienzo);
 
     const pausas = fichaje.time_events
       .filter(e => e.type === TipoEvento.PAUSE || e.type === TipoEvento.CONTINUE)
-      .sort((e1, e2) => e1.time > e2.time ? 1 : e1.time < e2.time ? -1 : 0)
+      .map((e: Evento) => {e.time = new Date(e.time); return e; })
+      .sort((e1, e2) => e1.time > e2.time ? 1 : e1.time < e2.time ? -1 : 0) //Ascendente
       .reverse()
       .reduce((acum: Date, curr: Evento) => {
         return acum === null 

@@ -6,7 +6,6 @@ import { Pipe, PipeTransform } from '@angular/core';
 export class CustomDatepipePipe implements PipeTransform {
 
   transform(dateToTransform: string, format: string): any {
-
     const date = new Date(dateToTransform);
     if(format === 'date') {
       const years = String(date.getUTCFullYear());

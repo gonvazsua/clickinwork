@@ -16,8 +16,6 @@ export class FichajeEventoComponent implements OnInit {
 
   @Input() 
   set isEnabled(value) {
-    console.log("EVENTO ", this.eventType);
-    console.log("Is enabled: ", value);
     this._isEnabled = value === 'true';
   }
 
