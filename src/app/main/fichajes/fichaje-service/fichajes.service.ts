@@ -28,24 +28,33 @@ export class FichajesService {
   constructor(private http: HttpClient, 
     private dateFactory: DateFactoryService) { }
 
+  enriqueceFichaje(llamadaHttp: Observable<Fichaje>): Observable<Fichaje> {
+    return llamadaHttp.pipe(
+      map(fichaje => {
+        const fichajeEnriquecido = this.enriquecerFichajesConTotales(fichaje);
+        return fichajeEnriquecido;
+      })
+    )
+  }
+
   cargarFichajeActual(): Observable<Fichaje> {
-    return this.http.get<Fichaje>(this.URL_CURRENT);
+    return this.enriqueceFichaje(this.http.get<Fichaje>(this.URL_CURRENT));
   }
 
   empezarJornada(): Observable<Fichaje> {
-    return this.http.post<Fichaje>(this.URL_START, {});
+    return this.enriqueceFichaje(this.http.post<Fichaje>(this.URL_START, {}));
   }
 
   hacerPausa(): Observable<Fichaje> {
-    return this.http.post<Fichaje>(this.URL_PAUSE, {});
+    return this.enriqueceFichaje(this.http.post<Fichaje>(this.URL_PAUSE, {}));
   }
 
   continuarJornada(): Observable<Fichaje> {
-    return this.http.post<Fichaje>(this.URL_CONTINUE, {});
+    return this.enriqueceFichaje(this.http.post<Fichaje>(this.URL_CONTINUE, {}));
   }
 
   terminarJornada(): Observable<Fichaje> {
-    return this.http.post<Fichaje>(this.URL_FINISH, {});
+    return this.enriqueceFichaje(this.http.post<Fichaje>(this.URL_FINISH, {}));
   }
 
   cargarUltimosFichajes(): Observable<Array<FichajeTotales>> {
@@ -57,38 +66,25 @@ export class FichajesService {
       );
   }
 
-
-  enriquecerFichajesConTotales(fichaje: Fichaje) : FichajeTotales {
-    const fichajeTotales = new FichajeTotales(fichaje);
-    const eventoStart = fichaje.time_events.find(e => e.type === TipoEvento.START);
-    fichajeTotales.comienzo = eventoStart ? new Date(eventoStart.time) : null;
-    
-    const eventoStop = fichaje.time_events.find(e => e.type === TipoEvento.STOP);
-    fichajeTotales.fin = eventoStop ? new Date(eventoStop.time) : new Date();
-
-    const total = this.dateFactory.getDiffInHours(fichajeTotales.fin, fichajeTotales.comienzo);
-
-    const pausas = fichaje.time_events
-      .filter(e => e.type === TipoEvento.PAUSE || e.type === TipoEvento.CONTINUE)
-      .map((e: Evento) => {e.time = new Date(e.time); return e; })
-      .sort((e1, e2) => e1.time > e2.time ? 1 : e1.time < e2.time ? -1 : 0) //Ascendente
-      .reverse()
-      .reduce((acum: Date, curr: Evento) => {
-        return acum === null 
-          ? curr.time
-          : this.dateFactory.getDiffInHours(acum, curr.time);
-      }, null);
-    
-    fichajeTotales.totalPausas = pausas;
-    fichajeTotales.totalTrabajado = this.dateFactory.getDiffInHours(total, pausas);
-    fichajeTotales.eventosIntermedios = this.obtenerEventosIntermedios(fichaje.time_events);
-    return fichajeTotales;
-  }
-
+  /**
+   * Devuelve los eventos de tipo CONTINUE y PAUSE ordenados
+   * @param eventos 
+   */
   obtenerEventosIntermedios(eventos: Array<Evento>): Array<Evento> {
     return eventos
         .filter((e:Evento) => e.type === TipoEvento.CONTINUE || e.type === TipoEvento.PAUSE)
         .sort((e1:Evento, e2:Evento) => { return +new Date(e1.time) - +new Date(e2.time) });
+  }
+
+    /**
+   * Obtiene eventos ordenados
+   * @param fichaje 
+   */
+  getSortedEvents(fichaje: Fichaje): Array<Evento> {
+    const sorted = new Array<Evento>();
+    Object.assign(sorted, fichaje.time_events);
+    return sorted
+        .sort((e1, e2) => e1.time > e2.time ? 1 : e1.time < e2.time ? -1 : 0)
   }
 
   calcularEstadoJornada(fichaje: Fichaje): EstadoJornada {
@@ -108,27 +104,69 @@ export class FichajesService {
       return lastEvent.type === TipoEvento.START || lastEvent.type === TipoEvento.CONTINUE;
   }
 
-  getSortedEvents(fichaje: Fichaje): Array<Evento> {
-      const sorted = new Array<Evento>();
-      Object.assign(sorted, fichaje.time_events);
-      return sorted
-          .sort((e1, e2) => e1.time > e2.time ? 1 : e1.time < e2.time ? -1 : 0)
-  }
-
   getLastEvent(fichaje: Fichaje): Evento {
       return this.getSortedEvents(fichaje).pop() || new Evento();
   }
 
   isStarted(fichaje: Fichaje): boolean {
-      return this.getSortedEvents(fichaje).find(e => e.type === TipoEvento.START) ? true : false;
+      return fichaje.status === FichajeStatus.OPEN 
+        && this.getSortedEvents(fichaje).find(e => e.type === TipoEvento.START) ? true : false;
   }
 
   isStopped(fichaje: Fichaje): boolean {
-      return this.getSortedEvents(fichaje).find(e => e.type === TipoEvento.STOP) ? true : false;
+      return fichaje.status === FichajeStatus.CLOSED 
+        && this.getSortedEvents(fichaje).find(e => e.type === TipoEvento.STOP) ? true : false;
   }
 
   isNotStarted(fichaje: Fichaje): boolean {
     return fichaje.time_events === null || fichaje.time_events.length === 0;
+  }
+
+  enriquecerFichajesConTotales(fichaje: Fichaje) : FichajeTotales {
+    const fichajeTotales = new FichajeTotales(fichaje);
+    
+    const eventoStart = fichaje.time_events.find(e => e.type === TipoEvento.START);
+    fichajeTotales.comienzo = eventoStart ? new Date(eventoStart.time) : null;
+    
+    const eventoStop = fichaje.time_events.find(e => e.type === TipoEvento.STOP);
+    fichajeTotales.fin = eventoStop ? new Date(eventoStop.time) : null;
+    
+    const totales: {'minsTrabajado': number, 'minsPausado': number, 'ultimaHora': Date} = this.calcularTotalesEnMinutos(fichaje.time_events);
+    fichajeTotales.totalPausas = this.dateFactory.minutosADate(totales.minsPausado);
+    fichajeTotales.totalTrabajado = this.dateFactory.minutosADate(totales.minsTrabajado);
+    fichajeTotales.eventosIntermedios = this.obtenerEventosIntermedios(fichaje.time_events);
+
+    return fichajeTotales;
+  }
+
+  calcularTotalesEnMinutos(time_events): {'minsTrabajado': number, 'minsPausado': number, 'ultimaHora': Date} {
+
+    if(time_events === null || time_events.length === 0) return {'minsTrabajado': 0, 'minsPausado': 0, 'ultimaHora': null};
+    else {
+      const totales: {'minsTrabajado': number, 'minsPausado': number, 'ultimaHora': Date} = time_events
+      .map((e: Evento) => {e.time = new Date(e.time); return e; })
+      .sort((e1, e2) => e1.time > e2.time ? 1 : e1.time < e2.time ? -1 : 0) //Ascendente
+      .reverse()
+      .reduce((acum: {'minsTrabajado': number, 'minsPausado': number, 'ultimaHora': Date}, curr: Evento) => {
+        acum = acum || {'minsTrabajado': 0, 'minsPausado': 0, 'ultimaHora': new Date()/*curr.time*/};
+        
+        const totalTrabajado = curr.type === TipoEvento.CONTINUE || curr.type === TipoEvento.START
+          ? acum.minsTrabajado + this.dateFactory.calcularDiferenciaEnMinutos(acum.ultimaHora, curr.time)
+          : acum.minsTrabajado;
+
+        const totalPausado = curr.type === TipoEvento.PAUSE
+          ? acum.minsPausado + this.dateFactory.calcularDiferenciaEnMinutos(acum.ultimaHora, curr.time)
+          : acum.minsPausado;
+
+        acum.minsTrabajado = totalTrabajado
+        acum.minsPausado = totalPausado;
+        acum.ultimaHora = curr.time;
+        return acum;
+      }, null);
+      console.log(totales);
+      return totales;
+    }
+
   }
 
 }

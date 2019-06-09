@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 
 import { DateFactoryService } from './date-factory.service';
 
-describe('DateFactoryService', () => {
+fdescribe('DateFactoryService', () => {
   beforeEach(() => TestBed.configureTestingModule({}));
 
   it('should be created', () => {
@@ -26,6 +26,13 @@ describe('DateFactoryService', () => {
     expect(service.getDiffInHours(date5, date6).getHours()).toBe(10);
     expect(service.getDiffInHours(date5, date6).getMinutes()).toBe(10);
 
+  });
+
+  it('Should return the amount of mins as Date object', () => {
+    const service: DateFactoryService = TestBed.get(DateFactoryService);
+    const date = service.minutosADate(440);
+    expect(date.getHours()).toBe(7);
+    expect(date.getMinutes()).toBe(20);
   });
 
 });

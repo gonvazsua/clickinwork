@@ -29,10 +29,11 @@ export class FichajesComponent implements OnInit {
     this.fichajesService.cargarFichajeActual()
       .subscribe((fichaje: Fichaje) => {
         this.fichajesState.fichajeActual = fichaje;
+        console.log(fichaje);
         this.actualizarEstadosPantalla(fichaje);
         
       });
-    this.obtenerUltimosFichajes();
+    //this.obtenerUltimosFichajes();
   }
   
   empezarJornada(){
@@ -109,25 +110,20 @@ export class FichajesComponent implements OnInit {
       this.fichajesService.cargarUltimosFichajes()
         .subscribe((ultimosFichajes: Array<any>) => {
           this.fichajesState.ultimosFichajes = ultimosFichajes;
-          console.log(ultimosFichajes);
           this.fichajesState.cargando = false;
         });
     }, 1500);
   }
 
-  actualizarFichajeTotales(fichaje: Fichaje) {
-    const fichajeTotales = this.fichajesService.enriquecerFichajesConTotales(fichaje);
-    this.fichajesState.fichajeAConsultar = fichajeTotales;
-  }
 
   actualizarEstadoJornada(fichaje: Fichaje) {
     const estadoJornada: EstadoJornada = this.fichajesService.calcularEstadoJornada(fichaje);
     this.fichajesState.estadoJornada = estadoJornada;
+    console.log(estadoJornada);
   }
 
   actualizarEstadosPantalla(fichaje: Fichaje) {
     this.fichajesState.fichajeAConsultar = fichaje;
-    this.actualizarFichajeTotales(fichaje);
     this.actualizarEstadoJornada(fichaje);
   }
 

@@ -24,7 +24,7 @@
 </div>
 
 <div class="row">
-  <!-- FICHAJE ACTUAL -->
+  <!-- FICHAJE ACTUAL O A CONSULTAR -->
   <div class="col-sm-6 col-xs-12">
     <div class="board">
       <div class="panel panel-primary">
@@ -56,7 +56,7 @@
             <div class="row">
               <div class="col-lg-6">Hora de fin</div>
               <div class="col-lg-6">
-                <span class="badge badge-danger">
+                <span class="badge badge-danger" *ngIf="(fichajesState.fichajeAConsultar$ | async)?.fin">
                   {{(fichajesState.fichajeAConsultar$ | async)?.fin | customDatepipe: 'time'}} h.
                 </span>
               </div>
@@ -68,7 +68,7 @@
 
             <div class="row">
               <div class="col-lg-6">Total trabajado</div>
-              <div class="col-lg-6"><span class="badge badge-danger">{{(fichajesState.fichajeAConsultar$ | async )?.total | customDatepipe: 'time'}}</span></div>
+              <div class="col-lg-6"><span class="badge badge-danger">{{(fichajesState.fichajeAConsultar$ | async )?.totalTrabajado | customDatepipe: 'time'}} h.</span></div>
             </div>
           </div>
         </div>
