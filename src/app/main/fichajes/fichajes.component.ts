@@ -126,4 +126,12 @@ export class FichajesComponent implements OnInit {
     this.actualizarEstadoJornada(fichaje);
   }
 
+  actualizarFichajeAConsultar(fichaje: Fichaje) {
+    this.fichajesState.cargando = true;
+    setTimeout(() => {
+      this.fichajesState.fichajeAConsultar = fichaje;
+      this.fichajesState.cargando = false;
+    }, 1500);
+  }
+
 }

@@ -119,7 +119,7 @@
                   <tr *ngIf="!(fichajesState.ultimosFichajes$ | async) || (fichajesState.ultimosFichajes$ | async)?.length === 0">
                     <td colspan="4">Todavía no hay registros de fichajes</td>
                   </tr>
-                  <tr *ngFor="let fichaje of (fichajesState.ultimosFichajes$ | async)" class="text-center">
+                  <tr *ngFor="let fichaje of (fichajesState.ultimosFichajes$ | async)" class="text-center clicable" (click)="actualizarFichajeAConsultar(fichaje)">
                     <td>{{fichaje.creation_date | date: 'dd/MM/yyyy'}}</td>
                     <td>{{fichaje.comienzo | date: 'HH:mm'}}</td>
                     <td>{{fichaje.fin | date: 'HH:mm'}}</td>
