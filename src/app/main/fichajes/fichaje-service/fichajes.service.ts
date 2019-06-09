@@ -94,6 +94,10 @@ export class FichajesService {
     else return EstadoJornada.TERMINADA;
   }
 
+  isNotStarted(fichaje: Fichaje): boolean {
+    return fichaje.time_events === null || fichaje.time_events.length === 0;
+  }
+
   isPaused(fichaje: Fichaje): boolean {
     const lastEvent = this.getLastEvent(fichaje);
     return lastEvent.type === TipoEvento.PAUSE;
@@ -101,7 +105,7 @@ export class FichajesService {
 
   isResumed(fichaje: Fichaje): boolean {
       const lastEvent = this.getLastEvent(fichaje);
-      return lastEvent.type === TipoEvento.START || lastEvent.type === TipoEvento.CONTINUE;
+      return lastEvent.type === TipoEvento.CONTINUE;
   }
 
   getLastEvent(fichaje: Fichaje): Evento {
@@ -109,17 +113,14 @@ export class FichajesService {
   }
 
   isStarted(fichaje: Fichaje): boolean {
-      return fichaje.status === FichajeStatus.OPEN 
-        && this.getSortedEvents(fichaje).find(e => e.type === TipoEvento.START) ? true : false;
+    const lastEvent = this.getLastEvent(fichaje);  
+    return fichaje.status === FichajeStatus.OPEN 
+        && lastEvent.type === TipoEvento.START;
   }
 
   isStopped(fichaje: Fichaje): boolean {
       return fichaje.status === FichajeStatus.CLOSED 
         && this.getSortedEvents(fichaje).find(e => e.type === TipoEvento.STOP) ? true : false;
-  }
-
-  isNotStarted(fichaje: Fichaje): boolean {
-    return fichaje.time_events === null || fichaje.time_events.length === 0;
   }
 
   enriquecerFichajesConTotales(fichaje: Fichaje) : FichajeTotales {
@@ -134,6 +135,7 @@ export class FichajesService {
     const totales: {'minsTrabajado': number, 'minsPausado': number, 'ultimaHora': Date} = this.calcularTotalesEnMinutos(fichaje.time_events);
     fichajeTotales.totalPausas = this.dateFactory.minutosADate(totales.minsPausado);
     fichajeTotales.totalTrabajado = this.dateFactory.minutosADate(totales.minsTrabajado);
+    fichajeTotales.total = this.dateFactory.minutosADate(totales.minsPausado + totales.minsTrabajado);
     fichajeTotales.eventosIntermedios = this.obtenerEventosIntermedios(fichaje.time_events);
 
     return fichajeTotales;
@@ -163,7 +165,6 @@ export class FichajesService {
         acum.ultimaHora = curr.time;
         return acum;
       }, null);
-      console.log(totales);
       return totales;
     }
 

@@ -29,11 +29,10 @@ export class FichajesComponent implements OnInit {
     this.fichajesService.cargarFichajeActual()
       .subscribe((fichaje: Fichaje) => {
         this.fichajesState.fichajeActual = fichaje;
-        console.log(fichaje);
         this.actualizarEstadosPantalla(fichaje);
         
       });
-    //this.obtenerUltimosFichajes();
+    this.obtenerUltimosFichajes();
   }
   
   empezarJornada(){

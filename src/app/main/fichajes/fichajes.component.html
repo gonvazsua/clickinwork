@@ -29,11 +29,14 @@
     <div class="board">
       <div class="panel panel-primary">
         <div class="row">
-          <div class="col-lg-10">
+          <div class="col-lg-9">
             <div class="panel-title">FICHAJE ACTUAL</div>
           </div>
-          <div class="col-lg-2 text-center" *ngIf="(fichajesState.cargando$ | async)">
+          <div class="col-lg-3 text-center" *ngIf="(fichajesState.cargando$ | async)">
             <i class="fas fa-spinner fa-pulse loading"></i>
+          </div>
+          <div class="col-lg-3 text-center" *ngIf="!(fichajesState.cargando$ | async)">
+            <div class="title-info">{{(fichajesState.fichajeAConsultar$ | async)?.creation_date | date: 'dd/MM/yyyy'}}</div>
           </div>
         </div>
         <div class="row" *ngIf="(fichajesState.fichajeAConsultar$ | async) && (fichajesState.estadoJornada$ | async) !== 'NO_EMPEZADA'">
@@ -42,7 +45,7 @@
               <div class="col-lg-6">Hora de comienzo</div>
               <div class="col-lg-6">
                 <span class="badge badge-success">
-                  {{(fichajesState.fichajeAConsultar$ | async)?.comienzo | customDatepipe: 'time'}} h.
+                  {{(fichajesState.fichajeAConsultar$ | async)?.comienzo | date: 'HH:mm'}} h.
                 </span>
               </div>
             </div>
@@ -50,14 +53,14 @@
             <div class="row" *ngFor="let event of (fichajesState.fichajeAConsultar$ | async)?.eventosIntermedios">
               <div class="col-lg-6" *ngIf="event.type === 'PAUSE'">Hora de pausa</div>
               <div class="col-lg-6" *ngIf="event.type === 'CONTINUE'">Continuaste a las</div>
-              <div class="col-lg-6"><span class="badge badge-secondary">{{event.time | customDatepipe: 'time'}}  h.</span></div>
+              <div class="col-lg-6"><span class="badge badge-secondary">{{event.time | date: 'HH:mm'}}  h.</span></div>
             </div>
 
             <div class="row">
               <div class="col-lg-6">Hora de fin</div>
               <div class="col-lg-6">
                 <span class="badge badge-danger" *ngIf="(fichajesState.fichajeAConsultar$ | async)?.fin">
-                  {{(fichajesState.fichajeAConsultar$ | async)?.fin | customDatepipe: 'time'}} h.
+                  {{(fichajesState.fichajeAConsultar$ | async)?.fin | date: 'HH:mm'}} h.
                 </span>
               </div>
             </div>
@@ -68,7 +71,15 @@
 
             <div class="row">
               <div class="col-lg-6">Total trabajado</div>
-              <div class="col-lg-6"><span class="badge badge-danger">{{(fichajesState.fichajeAConsultar$ | async )?.totalTrabajado | customDatepipe: 'time'}} h.</span></div>
+              <div class="col-lg-6"><span class="badge badge-success">{{(fichajesState.fichajeAConsultar$ | async )?.totalTrabajado | date: 'HH:mm'}} h.</span></div>
+            </div>
+            <div class="row">
+              <div class="col-lg-6">Total pausado</div>
+              <div class="col-lg-6"><span class="badge badge-warning">{{(fichajesState.fichajeAConsultar$ | async )?.totalPausas | date: 'HH:mm'}} h.</span></div>
+            </div>
+            <div class="row">
+              <div class="col-lg-6">Total</div>
+              <div class="col-lg-6"><span class="badge badge-secondary">{{(fichajesState.fichajeAConsultar$ | async )?.total | date: 'HH:mm'}} h.</span></div>
             </div>
           </div>
         </div>
@@ -86,10 +97,10 @@
     <div class="board">
       <div class="panel panel-primary">
         <div class="row">
-          <div class="col-lg-10">
+          <div class="col-lg-9">
             <div class="panel-title">ULTIMOS FICHAJES</div>
           </div>
-          <div class="col-lg-2 text-center" *ngIf="(fichajesState.cargando$ | async)">
+          <div class="col-lg-3 text-center" *ngIf="(fichajesState.cargando$ | async)">
             <i class="fas fa-spinner fa-pulse loading"></i>
           </div>
         </div>
@@ -109,9 +120,9 @@
                     <td colspan="4">Todavía no hay registros de fichajes</td>
                   </tr>
                   <tr *ngFor="let fichaje of (fichajesState.ultimosFichajes$ | async)" class="text-center">
-                    <td>{{fichaje.creation_date | customDatepipe: 'date'}}</td>
-                    <td>{{fichaje.comienzo | customDatepipe: 'time'}}</td>
-                    <td>{{fichaje.fin | customDatepipe: 'time'}}</td>
+                    <td>{{fichaje.creation_date | date: 'dd/MM/yyyy'}}</td>
+                    <td>{{fichaje.comienzo | date: 'HH:mm'}}</td>
+                    <td>{{fichaje.fin | date: 'HH:mm'}}</td>
                     <td>{{fichaje.totalTrabajado | date: 'HH:mm'}}</td>
                   </tr>
                 </tbody>

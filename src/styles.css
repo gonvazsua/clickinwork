@@ -67,3 +67,7 @@ h1 {
     line-height: 1.42857143;
     margin-bottom: 1.5rem;
 }
+
+.panel .title-info {
+    color: #7E7E7E;
+}
